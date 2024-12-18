@@ -1,0 +1,17 @@
+[Unit]
+Description=myapp
+Documentation=https://myapp.mycompany.com/docs/
+After=syslog.target network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/myapp
+ExecStart=/path/to/app/sbin/startup.sh \
+    --spring.profiles.active=ssl,dev
+KillSignal=15
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target
