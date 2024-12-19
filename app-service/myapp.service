@@ -1,15 +1,20 @@
 [Unit]
-Description=myapp
-Documentation=https://myapp.mycompany.com/docs/
+Description=<项目名称>
+Documentation=<项目文档URL>
 After=syslog.target network.target
 
 [Service]
 Type=simple
+
 User=root
 Group=root
-WorkingDirectory=/opt/myapp
-ExecStart=/path/to/app/sbin/startup.sh \
+
+Environment="JAVA_HOME=<JDK安装目录>"
+WorkingDirectory=<项目安装目录>
+
+ExecStart=<项目安装目录>/sbin/startup.sh \
     --spring.profiles.active=ssl,dev
+
 KillSignal=15
 SuccessExitStatus=143
 

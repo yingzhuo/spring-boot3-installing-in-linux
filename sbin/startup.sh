@@ -1,13 +1,13 @@
 #!/bin/sh
 
-APP_NAME="myapp"
+APP_NAME="<按需要填写>"
 APP_FORMAT="jar"
 
-ENABLE_GC_LOG="false"
-GC_LOG_DIR=""
+ENABLE_GC_LOG="<按需要填写 true | false>"
+GC_LOG_DIR="<按需要填写>"
 
-ENABLE_HEAP_DUMP="false"
-HEAP_DUMP_DIR=""
+ENABLE_HEAP_DUMP="<按需要填写 true | false>"
+HEAP_DUMP_DIR="<按需要填写>"
 
 #===========================================================================================
 # Environment Setting
@@ -82,7 +82,7 @@ JAVA_OPT="${JAVA_OPT} -server -Xmixed"
 JAVA_OPT="${JAVA_OPT} -XX:+PrintCommandLineFlags -XX:-PrintFlagsInitial -XX:+PrintFlagsFinal"
 JAVA_OPT="${JAVA_OPT} -XX:ThreadStackSize=512k"
 JAVA_OPT="${JAVA_OPT} -XX:InitialHeapSize=1g -XX:MinHeapSize=1g -XX:NewRatio=2 -XX:SurvivorRatio=8 -XX:+UseTLAB"
-JAVA_OPT="${JAVA_OPT} -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m"
+JAVA_OPT="${JAVA_OPT} -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m -XX:+UseCompressedOops"
 JAVA_OPT="${JAVA_OPT} -XX:MaxDirectMemorySize=1g"
 JAVA_OPT="${JAVA_OPT} -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
 JAVA_OPT="${JAVA_OPT} -XX:+UsePerfData"
