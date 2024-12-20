@@ -3,7 +3,7 @@
 ### 注意事项
 
 * [startup.sh](./sbin/startup.sh)中*JVM参数*和*变量*应当按实际情况修改。
-* [sbin目录](sbin/)中所有脚本都应加上可执行权限。
+* SpringBoot的启动强烈推荐`org.springframework.boot.loader.launch.PropertiesLauncher`
 
 ### 参考资料
 

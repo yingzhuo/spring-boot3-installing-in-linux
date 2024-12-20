@@ -1,5 +1,11 @@
 #!/bin/sh
 
+#===========================================================================================
+# 环境变量
+#===========================================================================================
+
+JAVA_HOME="/opt/java17 <按实际情况填写>"
+
 APP_NAME="<按需要填写>"
 APP_FORMAT="jar"
 
@@ -10,8 +16,9 @@ ENABLE_HEAP_DUMP="<按需要填写 true | false>"
 HEAP_DUMP_DIR="<按需要填写>"
 
 #===========================================================================================
-# Environment Setting
+# 找到应用程序安装目录
 #===========================================================================================
+
 export BASE_DIR=$(dirname "$0")/..
 
 if [ -f "$BASE_DIR/sbin/env.sh" ]; then
@@ -78,6 +85,10 @@ check_java_version
 choose_gc_log_directory
 choose_heap_dump_directory
 
+#===========================================================================================
+# JVM参数 需按需要更改
+#===========================================================================================
+
 JAVA_OPT="${JAVA_OPT} -server -Xmixed"
 JAVA_OPT="${JAVA_OPT} -XX:+PrintCommandLineFlags -XX:-PrintFlagsInitial -XX:+PrintFlagsFinal"
 JAVA_OPT="${JAVA_OPT} -XX:ThreadStackSize=512k"
@@ -87,21 +98,30 @@ JAVA_OPT="${JAVA_OPT} -XX:MaxDirectMemorySize=1g"
 JAVA_OPT="${JAVA_OPT} -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
 JAVA_OPT="${JAVA_OPT} -XX:+UsePerfData"
 
+# 堆内存dump
 if [ x"$ENABLE_HEAP_DUMP" = "xtrue" ]; then
   JAVA_OPT="${JAVA_OPT} -XX:+HeapDumpOnOutOfMemoryError -XX:+HeapDumpBeforeFullGC -XX:HeapDumpPath=${HEAP_DUMP_DIR}/${APP_NAME}.hprof"
 fi
 
+# GC日志
 if [ x"$ENABLE_GC_LOG" = "xtrue" ]; then
   JAVA_OPT="${JAVA_OPT} -verbose:gc -Xlog:gc*:file=${GC_LOG_DIR}/${APP_NAME}_gc_%p_%t.log:time,tags:filecount=5,filesize=32M"
 fi
 
-JAVA_OPT_EXT="-Djava.security.egd=file:/dev/./urandom"
+#===========================================================================================
+# System Properties
+#===========================================================================================
+
+JAVA_OPT_EXT="${JAVA_OPT_EXT} -Djava.security.egd=file:/dev/./urandom"
+JAVA_OPT_EXT="${JAVA_OPT_EXT} -Dloader.system=true"
+JAVA_OPT_EXT="${JAVA_OPT_EXT} -Dloader.path=${BASE_DIR}/libs,${BASE_DIR}/config"
+
+#===========================================================================================
+# 启动应用程序
+#===========================================================================================
 
 if [ -f "$BASE_DIR/sbin/before-startup.sh" ]; then
     /bin/sh "$BASE_DIR/sbin/before-startup.sh"
 fi
 
-#===========================================================================================
-# Starup the Shit
-#===========================================================================================
 "$JAVA" ${JAVA_OPT} ${JAVA_OPT_EXT} -jar ${BASE_DIR}/app/${APP_NAME}.${APP_FORMAT} "$@"
