@@ -5,15 +5,11 @@ After=syslog.target network.target
 
 [Service]
 Type=simple
-
 User=root
 Group=root
-
 Environment="JAVA_HOME=<JDK安装目录>"
 WorkingDirectory=<项目安装目录>
-
 ExecStart=<项目安装目录>/sbin/startup.sh --spring.profiles.active=prod
-
 KillSignal=15
 SuccessExitStatus=143
 

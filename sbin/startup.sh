@@ -4,15 +4,13 @@
 # 环境变量
 #===========================================================================================
 
-JAVA_HOME="/opt/java17 <按实际情况填写>"
-
-APP_NAME="<按需要填写>"
+APP_NAME="<按实际情况填写>"
 APP_FORMAT="jar"
 
-ENABLE_GC_LOG="<按需要填写 true | false>"
+ENABLE_GC_LOG="false"
 GC_LOG_DIR="<按需要填写>"
 
-ENABLE_HEAP_DUMP="<按需要填写 true | false>"
+ENABLE_HEAP_DUMP="false"
 HEAP_DUMP_DIR="<按需要填写>"
 
 #===========================================================================================
@@ -31,12 +29,13 @@ error_exit() {
 }
 
 find_java_home() {
+  if [ -n "$JAVA_HOME" ]; then
+    JAVA_HOME=$JAVA_HOME
+    return
+  fi
+
   case "$(uname)" in
   Darwin)
-    if [ -n "$JAVA_HOME" ]; then
-      JAVA_HOME=$JAVA_HOME
-      return
-    fi
     JAVA_HOME=$(/usr/libexec/java_home)
     ;;
   *)
@@ -49,8 +48,6 @@ find_java_home
 
 [ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=/usr/java
 [ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=/opt/java
-[ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=/opt/java-home
-[ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=/opt/java_home
 [ ! -e "$JAVA_HOME/bin/java" ] && error_exit "Please set the JAVA_HOME variable in your environment, We need java(x64)!"
 
 export JAVA_HOME
@@ -86,19 +83,19 @@ choose_gc_log_directory
 choose_heap_dump_directory
 
 #===========================================================================================
-# JVM参数 需按需要更改
+# JVM参数 按需要更改
 #===========================================================================================
 
 JAVA_OPT="${JAVA_OPT} -server -Xmixed"
-JAVA_OPT="${JAVA_OPT} -XX:+PrintCommandLineFlags -XX:-PrintFlagsInitial -XX:+PrintFlagsFinal"
+JAVA_OPT="${JAVA_OPT} -XX:-PrintCommandLineFlags -XX:-PrintFlagsInitial -XX:-PrintFlagsFinal"
 JAVA_OPT="${JAVA_OPT} -XX:ThreadStackSize=512k"
 JAVA_OPT="${JAVA_OPT} -XX:InitialHeapSize=1g -XX:MinHeapSize=1g -XX:NewRatio=2 -XX:SurvivorRatio=8 -XX:+UseTLAB"
 JAVA_OPT="${JAVA_OPT} -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=320m -XX:+UseCompressedOops"
 JAVA_OPT="${JAVA_OPT} -XX:MaxDirectMemorySize=1g"
-JAVA_OPT="${JAVA_OPT} -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+JAVA_OPT="${JAVA_OPT} -XX:+UseG1GC -XX:MaxGCPauseMillis=300"
 JAVA_OPT="${JAVA_OPT} -XX:+UsePerfData"
 
-# 堆内存dump
+# 堆内存Dump
 if [ x"$ENABLE_HEAP_DUMP" = "xtrue" ]; then
   JAVA_OPT="${JAVA_OPT} -XX:+HeapDumpOnOutOfMemoryError -XX:+HeapDumpBeforeFullGC -XX:HeapDumpPath=${HEAP_DUMP_DIR}/${APP_NAME}.hprof"
 fi
@@ -113,15 +110,27 @@ fi
 #===========================================================================================
 
 JAVA_OPT_EXT="${JAVA_OPT_EXT} -Djava.security.egd=file:/dev/./urandom"
-JAVA_OPT_EXT="${JAVA_OPT_EXT} -Dloader.system=true"
-JAVA_OPT_EXT="${JAVA_OPT_EXT} -Dloader.path=${BASE_DIR}/libs,${BASE_DIR}/config"
+JAVA_OPT_EXT="${JAVA_OPT_EXT} -Dloader.system=false"
+JAVA_OPT_EXT="${JAVA_OPT_EXT} -Dloader.path=${BASE_DIR},${BASE_DIR}/libs,${BASE_DIR}/config"
+
+if [ -e "$BASE_DIR/config/logback.xml" ]; then
+  JAVA_OPT_EXT="${JAVA_OPT_EXT} -Dlogging.config=$BASE_DIR/config/logback.xml"
+fi
 
 #===========================================================================================
 # 启动应用程序
 #===========================================================================================
 
-if [ -f "$BASE_DIR/sbin/before-startup.sh" ]; then
-    /bin/sh "$BASE_DIR/sbin/before-startup.sh"
+# 执行初始化脚本
+if [ -x "$BASE_DIR/sbin/init.sh" ]; then
+    "$BASE_DIR/sbin/init.sh"
 fi
 
-"$JAVA" ${JAVA_OPT} ${JAVA_OPT_EXT} -jar ${BASE_DIR}/app/${APP_NAME}.${APP_FORMAT} "$@"
+JAR_FILE="${BASE_DIR}/app/${APP_NAME}.${APP_FORMAT}"
+
+${JAVA} \
+  ${JAVA_OPT} \
+  ${JAVA_OPT_EXT} \
+  -cp "$CLASSPATH:${JAR_FILE}" \
+  org.springframework.boot.loader.launch.PropertiesLauncher \
+  "$@"
