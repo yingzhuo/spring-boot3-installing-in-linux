@@ -111,7 +111,7 @@ fi
 
 JAVA_OPT_EXT="${JAVA_OPT_EXT} -Djava.security.egd=file:/dev/./urandom"
 JAVA_OPT_EXT="${JAVA_OPT_EXT} -Dloader.system=false"
-JAVA_OPT_EXT="${JAVA_OPT_EXT} -Dloader.path=${BASE_DIR},${BASE_DIR}/libs,${BASE_DIR}/config"
+JAVA_OPT_EXT="${JAVA_OPT_EXT} -Dloader.path=${BASE_DIR}/libs,${BASE_DIR}/config"
 
 if [ -e "$BASE_DIR/config/logback.xml" ]; then
   JAVA_OPT_EXT="${JAVA_OPT_EXT} -Dlogging.config=$BASE_DIR/config/logback.xml"
