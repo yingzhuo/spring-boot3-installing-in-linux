@@ -3,7 +3,7 @@
 <configuration debug="false" scan="true" scanPeriod="30 seconds" packagingData="false">
 
     <variable name="LOG_DIR" value="/tmp"/>
-    <variable name="APP_NAME" value="playground"/>
+    <variable name="APP_NAME" value="myapp"/>
 
     <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"/>
     <import class="ch.qos.logback.core.ConsoleAppender"/>
@@ -21,13 +21,15 @@
             <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}]%-5level %logger{72}[%L] - %msg%n</pattern>
         </encoder>
         <file>${LOG_DIR}/${APP_NAME}.log</file>
+        <append>true</append>
         <rollingPolicy class="SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>
                 ${LOG_DIR}/${APP_NAME}.%d{yyyy-MM-dd-mm}.%i.log.zip
             </fileNamePattern>
             <maxFileSize>32MB</maxFileSize>
             <maxHistory>60</maxHistory>
-            <totalSizeCap>128MB</totalSizeCap>
+            <totalSizeCap>2GB</totalSizeCap>
+            <cleanHistoryOnStart>false</cleanHistoryOnStart>
         </rollingPolicy>
     </appender>
 

@@ -4,24 +4,20 @@
 # 环境变量
 #===========================================================================================
 
-APP_NAME="<按实际情况填写>"
+APP_NAME="myapp"
 APP_FORMAT="jar"
 
 ENABLE_GC_LOG="false"
-GC_LOG_DIR="<按需要填写>"
+GC_LOG_DIR=""
 
 ENABLE_HEAP_DUMP="false"
-HEAP_DUMP_DIR="<按需要填写>"
+HEAP_DUMP_DIR=""
 
 #===========================================================================================
 # 找到应用程序安装目录
 #===========================================================================================
 
 export BASE_DIR=$(dirname "$0")/..
-
-if [ -f "$BASE_DIR/sbin/env.sh" ]; then
-    source "$BASE_DIR/sbin/env.sh"
-fi
 
 error_exit() {
   echo "ERROR: $1 !!"
@@ -48,6 +44,7 @@ find_java_home
 
 [ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=/usr/java
 [ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=/opt/java
+[ ! -e "$JAVA_HOME/bin/java" ] && JAVA_HOME=/opt/java-home
 [ ! -e "$JAVA_HOME/bin/java" ] && error_exit "Please set the JAVA_HOME variable in your environment, We need java(x64)!"
 
 export JAVA_HOME
@@ -110,7 +107,7 @@ fi
 #===========================================================================================
 
 JAVA_OPT_EXT="${JAVA_OPT_EXT} -Djava.security.egd=file:/dev/./urandom"
-JAVA_OPT_EXT="${JAVA_OPT_EXT} -Dloader.system=false"
+JAVA_OPT_EXT="${JAVA_OPT_EXT} -Dloader.system=true"
 JAVA_OPT_EXT="${JAVA_OPT_EXT} -Dloader.path=${BASE_DIR}/libs,${BASE_DIR}/config"
 
 if [ -e "$BASE_DIR/config/logback.xml" ]; then
@@ -122,11 +119,11 @@ fi
 #===========================================================================================
 
 # 执行初始化脚本
-if [ -x "$BASE_DIR/sbin/init.sh" ]; then
-    "$BASE_DIR/sbin/init.sh"
+if [ -x "$BASE_DIR/bin/init.sh" ]; then
+    "$BASE_DIR/bin/init.sh"
 fi
 
-JAR_FILE="${BASE_DIR}/app/${APP_NAME}.${APP_FORMAT}"
+JAR_FILE="${BASE_DIR}/${APP_NAME}.${APP_FORMAT}"
 
 ${JAVA} \
   ${JAVA_OPT} \
